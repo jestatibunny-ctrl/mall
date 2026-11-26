@@ -1,5 +1,7 @@
 # MallHub - all Bengaluru malls on one website
 
+Live demo: https://mall-1-rttl.onrender.com
+
 A multi-mall platform: one website where visitors can browse every mall in Bengaluru, search stores across malls,
 see offers, check live parking, book a slot, and earn loyalty points. Mall admins manage stores and offers.
 
