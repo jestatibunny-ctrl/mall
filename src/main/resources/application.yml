@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: mallhub
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mallhub
+    username: mallhub
+    password: mallhub
+  jpa:
+    hibernate:
+      ddl-auto: validate   # Flyway owns the schema; Hibernate only checks it matches
+    open-in-view: false
+  flyway:
+    enabled: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 1s
+      connect-timeout: 1s
+  cache:
+    type: redis
+    redis:
+      time-to-live: 60s
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+
+server:
+  port: ${PORT:8080}                    # cloud hosts tell the app which port to use via PORT
+  forward-headers-strategy: framework   # behind a host's HTTPS proxy, keep https:// links and redirects
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  health:
+    redis:
+      enabled: false     # Redis is optional (cache only), so it must not mark the app unhealthy
+
+mallhub:
+  simulator:
+    enabled: true        # fake parking + footfall data (no real sensors exist)
+  demo-data:
+    enabled: true        # seed Bengaluru malls and demo stores on first start
+  upload-dir: uploads
+  admin:
+    password: ${MALLHUB_ADMIN_PASSWORD:admin123}   # SET THIS on any public deployment
+  demo-accounts:
+    enabled: ${MALLHUB_DEMO_ACCOUNTS:true}         # set to false on any public deployment

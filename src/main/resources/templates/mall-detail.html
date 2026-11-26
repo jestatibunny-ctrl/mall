@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head(${mall.name})}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div class="container mt-4">
+  <div class="mh-hero mh-hero-sm">
+    <a th:href="@{/}" class="small text-white-50">&larr; All malls</a>
+    <h1 class="h2 mt-1" th:text="${mall.name}">Mall name</h1>
+    <p class="mb-1" th:text="${mall.area} + ' | ' + ${mall.address}">Area | Address</p>
+    <span class="mh-chip" th:if="${mall.openTime != null}">
+      Open <span th:text="${#temporals.format(mall.openTime,'HH:mm')}"></span> -
+      <span th:text="${#temporals.format(mall.closeTime,'HH:mm')}"></span>
+    </span>
+    <a class="mh-chip" th:href="@{/parking}">Live parking</a>
+    <a class="mh-chip" th:href="@{/offers}">All offers</a>
+  </div>
+
+  <h2 class="h5 mt-4">Parking</h2>
+  <div th:if="${#lists.isEmpty(zones)}" class="text-muted">No parking data for this mall.</div>
+  <div class="row g-3">
+    <div class="col-md-4" th:each="z : ${zones}">
+      <div class="card"><div class="card-body py-2">
+        <strong th:text="${z.name}">Zone</strong><br>
+        <span th:text="${z.availableSlots}">0</span> / <span th:text="${z.totalSlots}">0</span> free
+      </div></div>
+    </div>
+  </div>
+  <a class="btn btn-outline-dark btn-sm mt-2" th:href="@{/parking}">Live parking &amp; booking</a>
+
+  <h2 class="h5 mt-4">Offers</h2>
+  <div th:if="${#lists.isEmpty(offers)}" class="text-muted">No active offers right now.</div>
+  <ul class="list-group">
+    <li class="list-group-item" th:each="o : ${offers}">
+      <strong th:text="${o.storeName}">Store</strong> - <span th:text="${o.title}">Offer</span>
+      <small class="text-muted"> (until <span th:text="${o.validTo}"></span>)</small>
+    </li>
+  </ul>
+
+  <h2 class="h5 mt-4">Stores (<span th:text="${#lists.size(stores)}">0</span>)</h2>
+  <div class="table-responsive">
+    <table class="table table-sm">
+      <thead><tr><th>Store</th><th>Category</th><th>Floor</th><th>Unit</th><th>Offers</th></tr></thead>
+      <tbody>
+        <tr th:each="s : ${stores}">
+          <td th:text="${s.name}">Name</td>
+          <td th:text="${s.category}">Cat</td>
+          <td th:text="${s.floorLabel}">Floor</td>
+          <td th:text="${s.unitNo}">Unit</td>
+          <td><span class="badge bg-success" th:if="${s.activeOffers > 0}" th:text="${s.activeOffers}">1</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

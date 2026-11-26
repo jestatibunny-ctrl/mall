@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Rewards')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div class="container mt-4">
+  <div th:replace="~{fragments :: alerts}"></div>
+  <h1 class="h3 mh-title">Your rewards</h1>
+  <p class="lead">Balance: <strong th:text="${balance}">0</strong> points
+    <small class="text-muted">(1 point per <span th:text="${rupeesPerPoint}">100</span> rupees on verified bills)</small></p>
+
+  <div class="row g-4">
+    <div class="col-md-6">
+      <h2 class="h5">Submit a bill</h2>
+      <form th:action="@{/loyalty/bills}" method="post" enctype="multipart/form-data">
+        <div class="mb-2">
+          <label class="form-label">Store</label>
+          <select class="form-select" name="storeId" required>
+            <option th:each="s : ${stores}" th:value="${s.id}" th:text="${s.mallName} + ' - ' + ${s.name}"></option>
+          </select>
+        </div>
+        <div class="row">
+          <div class="col mb-2"><label class="form-label">Bill number</label><input class="form-control" name="billNo" required></div>
+          <div class="col mb-2"><label class="form-label">Amount (Rs)</label>
+            <input class="form-control" type="number" step="0.01" min="1" name="amount" required></div>
+        </div>
+        <div class="mb-3"><label class="form-label">Photo of bill (optional)</label>
+          <input class="form-control" type="file" name="image" accept=".jpg,.jpeg,.png,.webp,.pdf"></div>
+        <button class="btn btn-primary" type="submit">Submit bill</button>
+      </form>
+
+      <h2 class="h5 mt-4">Redeem points</h2>
+      <form class="d-flex gap-2" th:action="@{/loyalty/redeem}" method="post">
+        <input type="hidden" name="key" th:value="${redeemKey}">
+        <input class="form-control" type="number" min="1" name="points" placeholder="Points" required>
+        <button class="btn btn-dark" type="submit">Redeem</button>
+      </form>
+    </div>
+
+    <div class="col-md-6">
+      <h2 class="h5">Your bills</h2>
+      <div th:if="${#lists.isEmpty(bills)}" class="text-muted">No bills yet.</div>
+      <ul class="list-group mb-4">
+        <li class="list-group-item d-flex justify-content-between" th:each="b : ${bills}">
+          <span><span th:text="${b.storeName}">Store</span> <small class="text-muted" th:text="'#' + ${b.billNo}"></small></span>
+          <span><span th:text="'Rs ' + ${b.amount}">Rs 0</span>
+            <span class="badge ms-1"
+                  th:classappend="${b.status == 'VERIFIED'} ? 'bg-success' : (${b.status == 'PENDING'} ? 'bg-warning text-dark' : 'bg-danger')"
+                  th:text="${b.status}">PENDING</span></span>
+        </li>
+      </ul>
+
+      <h2 class="h5">Points history</h2>
+      <div th:if="${#lists.isEmpty(ledger)}" class="text-muted">No activity yet.</div>
+      <ul class="list-group">
+        <li class="list-group-item d-flex justify-content-between" th:each="l : ${ledger}">
+          <span th:text="${l.type} + ' - ' + ${#temporals.format(l.createdAt,'dd MMM HH:mm')}">EARN</span>
+          <strong th:text="(${l.points} > 0 ? '+' : '') + ${l.points}">+1</strong>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

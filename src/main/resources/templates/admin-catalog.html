@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Admin - stores')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div class="container mt-4">
+  <ul th:replace="~{fragments :: adminTabs('catalog')}"></ul>
+  <div th:replace="~{fragments :: alerts}"></div>
+
+  <div class="row g-4">
+    <div class="col-md-6">
+      <h2 class="h5">Add a store</h2>
+      <form th:action="@{/admin/stores}" method="post">
+        <div class="mb-2">
+          <label class="form-label">Mall</label>
+          <select class="form-select" name="mallId" required>
+            <option th:each="m : ${malls}" th:value="${m.id}" th:text="${m.name}"></option>
+          </select>
+        </div>
+        <div class="row">
+          <div class="col mb-2"><label class="form-label">Floor (0 = ground, -1 = basement)</label>
+            <input class="form-control" type="number" name="floor" value="0"></div>
+          <div class="col mb-2"><label class="form-label">Unit no.</label>
+            <input class="form-control" name="unitNo"></div>
+        </div>
+        <div class="mb-2"><label class="form-label">Category</label>
+          <input class="form-control" name="category" list="cats" required>
+          <datalist id="cats"><option th:each="c : ${categories}" th:value="${c.name}"></option></datalist>
+        </div>
+        <div class="mb-2"><label class="form-label">Store name</label>
+          <input class="form-control" name="name" required></div>
+        <div class="mb-3"><label class="form-label">Contact</label>
+          <input class="form-control" name="contact"></div>
+        <button class="btn btn-primary" type="submit">Add store</button>
+      </form>
+    </div>
+
+    <div class="col-md-6">
+      <h2 class="h5">Bulk import (CSV)</h2>
+      <p class="small text-muted">
+        Columns: <code>mall_name,floor,category,store_name,unit_no,contact</code>.
+        The mall name must match an existing mall. A header row is optional.
+        See <code>sample-data/stores-sample.csv</code> in the project.
+      </p>
+      <form th:action="@{/admin/import}" method="post" enctype="multipart/form-data">
+        <input class="form-control mb-3" type="file" name="file" accept=".csv" required>
+        <button class="btn btn-dark" type="submit">Import</button>
+      </form>
+    </div>
+  </div>
+</div>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

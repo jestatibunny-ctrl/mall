@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Admin - bills')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div class="container mt-4">
+  <ul th:replace="~{fragments :: adminTabs('bills')}"></ul>
+  <div th:replace="~{fragments :: alerts}"></div>
+  <h2 class="h5">Bills waiting for verification</h2>
+  <div th:if="${#lists.isEmpty(bills)}" class="alert alert-info">Nothing pending.</div>
+  <div class="table-responsive" th:unless="${#lists.isEmpty(bills)}">
+    <table class="table align-middle">
+      <thead><tr><th>User</th><th>Store</th><th>Bill</th><th>Amount</th><th>Image</th><th></th></tr></thead>
+      <tbody>
+        <tr th:each="b : ${bills}">
+          <td th:text="${b.userName}">User</td>
+          <td><span th:text="${b.storeName}">Store</span> <small class="text-muted" th:text="${b.mallName}"></small></td>
+          <td th:text="${b.billNo}">No</td>
+          <td th:text="'Rs ' + ${b.amount}">Rs 0</td>
+          <td><a th:if="${b.imageUrl != null}" th:href="@{/admin/files/{n}(n=${b.imageUrl})}" target="_blank">View</a></td>
+          <td>
+            <form class="d-inline" th:action="@{/admin/bills/{id}/verify(id=${b.id})}" method="post">
+              <button class="btn btn-success btn-sm" type="submit">Verify</button></form>
+            <form class="d-inline" th:action="@{/admin/bills/{id}/reject(id=${b.id})}" method="post">
+              <button class="btn btn-outline-danger btn-sm" type="submit">Reject</button></form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

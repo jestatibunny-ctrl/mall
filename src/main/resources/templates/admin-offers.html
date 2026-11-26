@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Admin - offers')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div class="container mt-4">
+  <ul th:replace="~{fragments :: adminTabs('offers')}"></ul>
+  <div th:replace="~{fragments :: alerts}"></div>
+
+  <h2 class="h5">Create an offer</h2>
+  <form class="row g-2 mb-4" th:action="@{/admin/offers}" method="post">
+    <div class="col-md-4">
+      <select class="form-select" name="storeId" required>
+        <option th:each="s : ${stores}" th:value="${s.id}" th:text="${s.mallName} + ' - ' + ${s.name}"></option>
+      </select>
+    </div>
+    <div class="col-md-4"><input class="form-control" name="title" placeholder="Title" required></div>
+    <div class="col-md-2">
+      <select class="form-select" name="discountType">
+        <option value="PERCENT">% off</option><option value="FLAT">Flat off</option><option value="BOGO">BOGO</option>
+      </select>
+    </div>
+    <div class="col-md-2"><input class="form-control" type="number" step="0.01" min="0" name="discountValue" placeholder="Value"></div>
+    <div class="col-md-6"><input class="form-control" name="description" placeholder="Description (optional)"></div>
+    <div class="col-md-2"><input class="form-control" type="date" name="validFrom" th:value="${today}" required></div>
+    <div class="col-md-2"><input class="form-control" type="date" name="validTo" required></div>
+    <div class="col-md-2 d-grid"><button class="btn btn-primary" type="submit">Submit</button></div>
+  </form>
+
+  <h2 class="h5">Offers</h2>
+  <p class="small text-muted">New offers are PENDING until a super admin approves them. Approval notifies all users.</p>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead><tr><th>Store</th><th>Mall</th><th>Title</th><th>Valid</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        <tr th:each="o : ${offers}">
+          <td th:text="${o.storeName}">Store</td>
+          <td th:text="${o.mallName}">Mall</td>
+          <td th:text="${o.title}">Title</td>
+          <td><span th:text="${o.validFrom}"></span> to <span th:text="${o.validTo}"></span></td>
+          <td><span class="badge"
+                    th:classappend="${o.status == 'APPROVED'} ? 'bg-success' : (${o.status == 'PENDING'} ? 'bg-warning text-dark' : 'bg-secondary')"
+                    th:text="${o.status}">PENDING</span></td>
+          <td sec:authorize="hasRole('SUPER_ADMIN')">
+            <form class="d-inline" th:if="${o.status == 'PENDING'}" th:action="@{/admin/offers/{id}/approve(id=${o.id})}" method="post">
+              <button class="btn btn-success btn-sm" type="submit">Approve</button>
+            </form>
+            <form class="d-inline" th:if="${o.status == 'PENDING'}" th:action="@{/admin/offers/{id}/reject(id=${o.id})}" method="post">
+              <button class="btn btn-outline-danger btn-sm" type="submit">Reject</button>
+            </form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

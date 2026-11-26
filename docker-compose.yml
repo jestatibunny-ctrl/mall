@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: mallhub-postgres
+    environment:
+      POSTGRES_DB: mallhub
+      POSTGRES_USER: mallhub
+      POSTGRES_PASSWORD: mallhub
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mallhub -d mallhub"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7
+    container_name: mallhub-redis
+    ports:
+      - "6379:6379"
+
+  # Run everything in containers:  docker compose --profile full up --build
+  app:
+    build: .
+    profiles: ["full"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mallhub
+      SPRING_DATA_REDIS_HOST: redis
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:

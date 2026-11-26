@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Parking')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div class="container mt-4">
+  <div th:replace="~{fragments :: alerts}"></div>
+  <div class="d-flex align-items-center gap-2 mb-1">
+    <h1 class="h3 mb-0 mh-title">Live parking</h1>
+    <span id="live" class="badge bg-secondary">connecting...</span>
+  </div>
+  <p class="text-muted small">Numbers update live. Parking data in this demo is simulated; real sensors would feed the same table.</p>
+
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead><tr><th>Mall</th><th>Zone</th><th>Free</th><th>Total</th><th style="width:25%">Occupancy</th><th></th></tr></thead>
+      <tbody>
+        <tr th:each="z : ${zones}">
+          <td th:text="${z.mallName}">Mall</td>
+          <td th:text="${z.name}">Zone</td>
+          <td><strong th:id="'avail-' + ${z.zoneId}" th:text="${z.availableSlots}">0</strong></td>
+          <td th:text="${z.totalSlots}">0</td>
+          <td>
+            <div class="progress"><div class="progress-bar" th:id="'bar-' + ${z.zoneId}" th:attr="data-total=${z.totalSlots}"
+                 th:style="'width:' + ${(z.totalSlots - z.availableSlots) * 100 / z.totalSlots} + '%'"></div></div>
+          </td>
+          <td>
+            <form class="d-flex gap-1" th:action="@{/parking/book}" method="post" sec:authorize="isAuthenticated()">
+              <input type="hidden" name="zoneId" th:value="${z.zoneId}">
+              <select class="form-select form-select-sm" name="hours" style="width:5.5rem">
+                <option value="1">1 h</option><option value="2" selected>2 h</option>
+                <option value="3">3 h</option><option value="4">4 h</option><option value="8">8 h</option>
+              </select>
+              <button class="btn btn-dark btn-sm" type="submit">Book</button>
+            </form>
+            <a class="small" th:href="@{/login}" sec:authorize="!isAuthenticated()">Log in to book</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div sec:authorize="isAuthenticated()" class="mt-4">
+    <h2 class="h5">Find my car</h2>
+    <div th:if="${bookings == null or #lists.isEmpty(bookings)}" class="text-muted">No bookings yet.</div>
+    <ul class="list-group">
+      <li class="list-group-item d-flex justify-content-between align-items-center" th:each="b : ${bookings}">
+        <span>
+          <strong th:text="${b.mallName} + ' - ' + ${b.zoneName} + ', slot ' + ${b.slotNo}">Mall - Zone, slot 1</strong>
+          <small class="text-muted"> until <span th:text="${#temporals.format(b.endTime,'dd MMM HH:mm')}"></span></small>
+        </span>
+        <span>
+          <span class="badge"
+                th:classappend="${b.status == 'ACTIVE'} ? 'bg-success' : 'bg-secondary'" th:text="${b.status}">ACTIVE</span>
+          <form class="d-inline" th:if="${b.status == 'ACTIVE'}" th:action="@{/parking/{id}/cancel(id=${b.id})}" method="post">
+            <button class="btn btn-outline-danger btn-sm ms-2" type="submit">Cancel</button>
+          </form>
+        </span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+<script>
+  var liveBadge = document.getElementById('live');
+  var proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
+  var client = new StompJs.Client({ brokerURL: proto + location.host + '/ws', reconnectDelay: 3000 });
+  client.onConnect = function () {
+    liveBadge.textContent = 'LIVE';
+    liveBadge.className = 'badge bg-success';
+    client.subscribe('/topic/parking', function (message) {
+      JSON.parse(message.body).forEach(function (z) {
+        var num = document.getElementById('avail-' + z.zoneId);
+        var bar = document.getElementById('bar-' + z.zoneId);
+        if (num) { num.textContent = z.available; }
+        if (bar) { bar.style.width = ((z.total - z.available) * 100 / z.total) + '%'; }
+      });
+    });
+  };
+  client.onWebSocketClose = function () {
+    liveBadge.textContent = 'OFFLINE';
+    liveBadge.className = 'badge bg-secondary';
+  };
+  client.activate();
+</script>
+</body>
+</html>

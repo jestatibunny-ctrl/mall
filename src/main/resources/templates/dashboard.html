@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Admin dashboard')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div class="container mt-4">
+  <ul th:replace="~{fragments :: adminTabs('dashboard')}"></ul>
+
+  <div class="row row-cols-2 row-cols-md-6 g-3 mb-4 text-center">
+    <div class="col"><div class="card"><div class="card-body py-2"><div class="h4 mb-0" th:text="${totals.malls}">0</div><small>Malls</small></div></div></div>
+    <div class="col"><div class="card"><div class="card-body py-2"><div class="h4 mb-0" th:text="${totals.stores}">0</div><small>Stores</small></div></div></div>
+    <div class="col"><div class="card"><div class="card-body py-2"><div class="h4 mb-0" th:text="${totals.users}">0</div><small>Users</small></div></div></div>
+    <div class="col"><div class="card"><div class="card-body py-2"><div class="h4 mb-0" th:text="${totals.activeOffers}">0</div><small>Active offers</small></div></div></div>
+    <div class="col"><div class="card border-warning"><div class="card-body py-2"><div class="h4 mb-0" th:text="${totals.pendingOffers}">0</div><small>Offers to approve</small></div></div></div>
+    <div class="col"><div class="card border-warning"><div class="card-body py-2"><div class="h4 mb-0" th:text="${totals.pendingBills}">0</div><small>Bills to verify</small></div></div></div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-6">
+      <h2 class="h5">Footfall, last 24 hours (simulated)</h2>
+      <canvas id="footfallChart" height="220"></canvas>
+    </div>
+    <div class="col-md-6">
+      <h2 class="h5">Malls at a glance</h2>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead><tr><th>Mall</th><th>Stores</th><th>Offers</th><th>Parking free</th></tr></thead>
+          <tbody>
+            <tr th:each="s : ${stats}">
+              <td th:text="${s.name}">Mall</td>
+              <td th:text="${s.stores}">0</td>
+              <td th:text="${s.offers}">0</td>
+              <td th:text="${s.freeSlots} + ' / ' + ${s.totalSlots}">0 / 0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script th:inline="javascript">
+  var labels = /*[[${labels}]]*/ [];
+  var data = /*[[${footfallData}]]*/ [];
+  new Chart(document.getElementById('footfallChart'), {
+    type: 'bar',
+    data: { labels: labels, datasets: [{ label: 'Visitors', data: data, backgroundColor: '#212529' }] },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+  });
+</script>
+</body>
+</html>

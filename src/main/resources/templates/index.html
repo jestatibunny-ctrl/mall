@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Home')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+
+<div class="container">
+  <div th:replace="~{fragments :: alerts}"></div>
+
+  <section class="mh-hero">
+    <h1 class="display-6">Every Bengaluru mall, one place &#128717;</h1>
+    <p class="mb-3">Find stores, grab offers, check live parking and earn rewards across
+      <strong th:text="${#lists.size(malls)}">6</strong> malls.</p>
+    <form class="row g-2 align-items-center" th:action="@{/stores}" method="get">
+      <div class="col-md-8"><input class="form-control" name="q" placeholder="Search a store across all malls (e.g. coffee, fashion)"></div>
+      <div class="col-md-2 d-grid"><button class="btn btn-search" type="submit">Search</button></div>
+      <div class="col-md-2 d-grid"><button class="btn btn-outline-primary" type="button" id="nearBtn">&#128205; Near me</button></div>
+    </form>
+    <div id="nearMsg" class="small mt-2"></div>
+    <div class="mt-2">
+      <a class="mh-chip" th:href="@{/offers}">&#127873; Offers</a>
+      <a class="mh-chip" th:href="@{/parking}">&#128663; Live parking</a>
+      <a class="mh-chip" th:href="@{/stores}">&#128717; All stores</a>
+      <a class="mh-chip" th:href="@{/loyalty}">&#11088; Rewards</a>
+    </div>
+  </section>
+
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h2 class="h5 mb-0">Malls in Bengaluru</h2>
+    <a class="btn btn-primary btn-sm" th:href="@{/malls/new}" sec:authorize="hasAnyRole('MALL_ADMIN','SUPER_ADMIN')">+ Add mall</a>
+  </div>
+
+  <div th:if="${#lists.isEmpty(malls)}" class="alert alert-info">No malls yet. Log in as an admin to add the first one.</div>
+
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="col" th:each="m, st : ${malls}">
+      <div class="card h-100">
+        <div class="mh-card-top" th:classappend="'mh-c' + ${st.index % 6}"></div>
+        <div class="card-body">
+          <div class="mh-mall-icon">&#127980;</div>
+          <h5 class="card-title mb-1" th:text="${m.name}">Mall name</h5>
+          <p class="card-text text-muted mb-1" th:text="${m.area}">Area</p>
+          <p class="card-text small" th:text="${m.address}">Address</p>
+        </div>
+        <div class="card-footer">
+          <a class="btn btn-outline-dark btn-sm" th:href="@{/malls/{id}(id=${m.id})}">View mall &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+<script>
+  document.getElementById('nearBtn').addEventListener('click', function () {
+    var msg = document.getElementById('nearMsg');
+    if (!navigator.geolocation) { msg.textContent = 'Your browser does not support location.'; return; }
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      window.location = '/malls/nearby?lat=' + pos.coords.latitude + '&lng=' + pos.coords.longitude;
+    }, function () { msg.textContent = 'Could not get your location. Allow location access and try again.'; });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Alerts')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div class="container mt-4" style="max-width: 720px;">
+  <h1 class="h3 mb-3 mh-title">Your alerts</h1>
+  <div th:if="${#lists.isEmpty(items)}" class="alert alert-info">No alerts yet. New offers will show up here.</div>
+  <ul class="list-group">
+    <li class="list-group-item" th:each="n : ${items}" th:classappend="${n.readAt == null} ? 'list-group-item-warning'">
+      <span th:text="${n.payload}">Message</span><br>
+      <small class="text-muted" th:text="${#temporals.format(n.createdAt,'dd MMM yyyy HH:mm')}">date</small>
+    </li>
+  </ul>
+</div>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

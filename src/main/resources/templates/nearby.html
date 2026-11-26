@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Malls near you')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div class="container mt-4">
+  <a th:href="@{/}" class="small">&larr; All malls</a>
+  <h1 class="h3 mt-2 mh-title">Malls near you</h1>
+  <p class="text-muted">Within <span th:text="${radius}">15</span> km, nearest first.</p>
+  <div th:if="${#lists.isEmpty(results)}" class="alert alert-info">No malls within this distance.</div>
+  <div class="list-group">
+    <a class="list-group-item list-group-item-action d-flex justify-content-between"
+       th:each="r : ${results}" th:href="@{/malls/{id}(id=${r.mall.id})}">
+      <span><strong th:text="${r.mall.name}">Mall</strong> <small class="text-muted" th:text="${r.mall.area}"></small></span>
+      <span class="badge bg-dark" th:text="${#numbers.formatDecimal(r.km, 1, 1)} + ' km'">0 km</span>
+    </a>
+  </div>
+</div>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

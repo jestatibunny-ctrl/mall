@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Stores')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div class="container mt-4">
+  <h1 class="h3 mb-3 mh-title">Find a store across all Bengaluru malls</h1>
+  <form class="row g-2 mb-3" th:action="@{/stores}" method="get">
+    <div class="col-md-4"><input class="form-control" name="q" th:value="${q}" placeholder="Store name"></div>
+    <div class="col-md-3">
+      <select class="form-select" name="category">
+        <option value="0">All categories</option>
+        <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}" th:selected="${c.id == selCategory}"></option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <select class="form-select" name="mall">
+        <option value="0">All malls</option>
+        <option th:each="m : ${malls}" th:value="${m.id}" th:text="${m.name}" th:selected="${m.id == selMall}"></option>
+      </select>
+    </div>
+    <div class="col-md-2 d-grid"><button class="btn btn-dark" type="submit">Search</button></div>
+  </form>
+
+  <p class="text-muted small"><span th:text="${#lists.size(stores)}">0</span> stores found</p>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead><tr><th>Store</th><th>Mall</th><th>Category</th><th>Floor</th><th>Unit</th><th>Offers</th></tr></thead>
+      <tbody>
+        <tr th:each="s : ${stores}">
+          <td th:text="${s.name}">Name</td>
+          <td><a th:href="@{/malls/{id}(id=${s.mallId})}" th:text="${s.mallName}">Mall</a></td>
+          <td th:text="${s.category}">Cat</td>
+          <td th:text="${s.floorLabel}">Floor</td>
+          <td th:text="${s.unitNo}">Unit</td>
+          <td><span class="badge bg-success" th:if="${s.activeOffers > 0}" th:text="${s.activeOffers} + ' active'">1</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

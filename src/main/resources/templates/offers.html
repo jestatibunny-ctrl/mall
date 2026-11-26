@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Offers')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div class="container mt-4">
+  <h1 class="h3 mb-3 mh-title">Active offers across Bengaluru malls</h1>
+  <div th:if="${#lists.isEmpty(offers)}" class="alert alert-info">No active offers right now.</div>
+  <div class="row row-cols-1 row-cols-md-3 g-3">
+    <div class="col" th:each="o : ${offers}">
+      <div class="card h-100 shadow-sm"><div class="card-body">
+        <h5 class="card-title" th:text="${o.title}">Title</h5>
+        <p class="mb-1"><strong th:text="${o.storeName}">Store</strong></p>
+        <p class="text-muted small mb-2">
+          <a th:href="@{/malls/{id}(id=${o.mallId})}" th:text="${o.mallName}">Mall</a>
+        </p>
+        <p class="small" th:text="${o.description}"></p>
+        <p class="small text-muted mb-0">Valid <span th:text="${o.validFrom}"></span> to <span th:text="${o.validTo}"></span></p>
+      </div></div>
+    </div>
+  </div>
+</div>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>
