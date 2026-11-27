@@ -31,6 +31,11 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @SpringBootTest(properties = {"mallhub.simulator.enabled=false", "mallhub.demo-data.enabled=false"})
 @Testcontainers
 class ConcurrencyTest {
+        // Newer Docker engines reject the old API version this Testcontainers release uses,
+    // so ask for a newer one.
+    static {
+        System.setProperty("api.version", "1.44");
+    }
 
     @Container
     @ServiceConnection
